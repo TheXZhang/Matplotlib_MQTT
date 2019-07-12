@@ -2,40 +2,42 @@ import numpy as np
 import paho.mqtt.client as mqtt
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import threading
+import time
 from matplotlib import style
 
+temp="0"
 temp_value=0
 fig=plt.figure()
-style.use('fivethirtyeight')
-plt.ylim(0,1)
-base=247.5
-heading=0
-roll=0
-pitch=0
+plt.ylim(0,10)
+
 
 def setup_mqtt():
 	client=mqtt.Client("graph")
 	client.on_connect=OnConnect
 	client.on_message=OnMessage
-	client.connect("192.168.5.1",1883,120)
+	client.connect("192.168.4.1",1883,120)
 	return client
 
 def OnConnect(client,userdata,flags,rc):
-	client.subscribe("test1/message")
-	client.subscribe("test/accdata")
+	#client.subscribe("test1/message")
+	client.subscribe("test/accdata1")
 	
 		
 	
 def OnMessage(client,userdata,msg):
-    global temp_value
+    global temp
+    
+    if msg.topic =="test/accdata1":
+        temp=msg.payload.decode()
 
-    if msg.topic =="test1/message":
-        temp_value=(int(msg.payload.decode()))
-    if msg.topic =="test/accdata":
-        temp_list=msg.payload.decode().split()
-        print(temp_list)
-        temp_list[0]
-        calculate(temp_list)
+    
+def assign_value():
+    global temp_value
+    global temp
+    while True:
+        temp_value=float(temp)
+        time.sleep(1)
 
     
 
@@ -44,13 +46,17 @@ def animate(i):
     global label
     global temp_value
     global heading
-    np.multiply(heading,2)
     plt.clf()
-    plt.ylim(0,1)
-    plt.bar(['Magnitude'],temp_value)        
+    plt.ylim(0,10)
+    plt.bar(['Magnitude'],temp_value)
+
+assign_ = threading.Thread(target=assign_value,daemon=True)
+print("hello")
+assign_.start()
 
 client = setup_mqtt()
 client.loop_start()  
+
 
 ani= animation.FuncAnimation(fig, animate,interval=500)
 plt.show()

@@ -10,7 +10,7 @@ import threading
 
 fig=plt.figure()
 plt.ylim(0,6)
-plt.xlim([0,18])
+plt.xlim([0,19])
 value=[]
 label=[]
 count=-10
@@ -25,7 +25,7 @@ def animate(i):
     global differences
     plt.clf()
     plt.ylim(0,6)
-    plt.xlim([0,18])
+    plt.xlim([0,19])
     s="total motion detected in last 3 minutes :" + str(differences)
     plt.title(s, fontsize=30)
     plt.bar(label,value)
@@ -35,7 +35,7 @@ def setup_mqtt():
     client=mqtt.Client("graph")
     client.on_connect=OnConnect
     client.on_message=OnMessage
-    client.connect("192.168.5.1",1883,120)
+    client.connect("192.168.4.1",1883,120)
     return client
 
 def OnConnect(client,userdata,flags,rc):
