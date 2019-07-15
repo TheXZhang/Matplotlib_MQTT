@@ -49,14 +49,19 @@ def animate(i):
     plt.clf()
     plt.ylim(0,10)
     plt.bar(['Magnitude'],temp_value)
+    
+while True:
+    try:
+        client = setup_mqtt()
+        client.loop_start()
+        print("mqtt connected")
+        break
+    except:
+        print("Still waiting for mqtt connection")
+        time.sleep(1)
 
 assign_ = threading.Thread(target=assign_value,daemon=True)
-print("hello")
 assign_.start()
-
-client = setup_mqtt()
-client.loop_start()  
-
 
 ani= animation.FuncAnimation(fig, animate,interval=500)
 plt.show()

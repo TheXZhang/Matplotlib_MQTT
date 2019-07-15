@@ -30,7 +30,7 @@ def animate(i):
     plt.title(s, fontsize=30)
     plt.bar(label,value)
 
-#192.168.5.1
+
 def setup_mqtt():
     client=mqtt.Client("graph")
     client.on_connect=OnConnect
@@ -76,9 +76,17 @@ def printit():
         label.append(str(count))
         print(label)
         previous=temp_value
-    
-client = setup_mqtt()
-client.loop_start()
+
+while True:
+    try:
+        client = setup_mqtt()
+        client.loop_start()
+        print("mqtt connected")
+        break
+    except:
+        print("Still waiting for mqtt connection")
+        time.sleep(1)
+        
 printit()
 
 def aniChecking():
@@ -91,6 +99,8 @@ def aniChecking():
             differences=0
             value.clear()
             label.clear()
+            value.append(0)
+            label.append("0")
             ani= animation.FuncAnimation(fig, animate, frames=18, interval=10000,repeat=False)
             
 
