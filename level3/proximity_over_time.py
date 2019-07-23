@@ -18,18 +18,6 @@ temp_value=0
 previous=0
 differences=0
 
-def animate(i):
-    global value
-    global label
-    global first
-    global differences
-    plt.clf()
-    plt.ylim(0,6)
-    plt.xlim([0,19])
-    s="total motion detected in last 3 minutes :" + str(differences)
-    plt.title(s, fontsize=30)
-    plt.bar(label,value)
-
 
 def setup_mqtt():
     client=mqtt.Client("graph")
@@ -45,20 +33,31 @@ def OnConnect(client,userdata,flags,rc):
     
 def OnMessage(client,userdata,msg):
     global temp_value
-    global counter
     if msg.topic =="test/message":
         temp_value=(int(msg.payload.decode()))
     
-        
+def animate(i):
+    global value
+    global label
+    global first
+    global differences
+    plt.clf()
+    plt.ylim(0,6)
+    plt.xlim([0,19])
+    s="total motion detected in last 3 minutes :" + str(differences)
+    plt.title(s, fontsize=30)
+    plt.bar(label,value)
         
 
-def printit():
+def assign_value():
     global temp_value
     global count
     global previous
     global differences
+    global value
+    global label
 
-    threading.Timer(10.0,printit).start()
+    threading.Timer(10.0,assign_value).start()
     local_temp=abs(temp_value-previous)
     if local_temp<20:
         value.append(temp_value-previous)
@@ -87,12 +86,14 @@ while True:
         print("Still waiting for mqtt connection")
         time.sleep(1)
         
-printit()
+assign_value()
 
 def aniChecking():
     global count
     global ani
     global differences
+    global value
+    global label
     while True:
         if count>=190:
             count=0

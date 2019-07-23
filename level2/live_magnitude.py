@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import threading
 import time
-from matplotlib import style
 
 temp="0"
 temp_value=0
@@ -13,7 +12,7 @@ plt.ylim(0,10)
 
 
 def setup_mqtt():
-	client=mqtt.Client("graph")
+	client=mqtt.Client("movement_level2")
 	client.on_connect=OnConnect
 	client.on_message=OnMessage
 	client.connect("192.168.4.1",1883,120)
@@ -36,8 +35,11 @@ def assign_value():
     global temp_value
     global temp
     while True:
+    if float(temp)<0.45:
+        temp_value=0
+    else:
         temp_value=float(temp)
-        time.sleep(1)
+    time.sleep(1)
 
     
 
@@ -45,9 +47,9 @@ def animate(i):
     global value
     global label
     global temp_value
-    global heading
     plt.clf()
     plt.ylim(0,10)
+    print(temp_value)
     plt.bar(['Magnitude'],temp_value)
     
 while True:
