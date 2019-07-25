@@ -5,6 +5,9 @@ import matplotlib.animation as animation
 import threading
 import time
 
+import socket
+socket.setdefaulttimeout(3)
+
 temp="0"
 temp_value=0
 fig=plt.figure()
@@ -35,11 +38,11 @@ def assign_value():
     global temp_value
     global temp
     while True:
-    if float(temp)<0.45:
-        temp_value=0
-    else:
-        temp_value=float(temp)
-    time.sleep(1)
+        if float(temp)<0.4:
+            temp_value=0
+        else:
+            temp_value=float(temp)
+        time.sleep(1)
 
     
 

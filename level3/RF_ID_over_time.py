@@ -6,6 +6,8 @@ import time
 from datetime import datetime
 import threading
 
+import socket
+socket.setdefaulttimeout(5)
 
 fig=plt.figure()
 plt.ylim('No','Yes')
@@ -80,7 +82,6 @@ assign_value()
 def aniChecking():
     global count
     global ani
-    global differences
     global value
     global label
     while True:

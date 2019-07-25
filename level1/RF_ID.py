@@ -5,6 +5,10 @@ import paho.mqtt.publish as pub
 import time
 import threading
 
+import socket
+socket.setdefaulttimeout(3)
+
+
 on_bed = False
 timer = 0
 fig=plt.figure()

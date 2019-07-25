@@ -5,6 +5,9 @@ import matplotlib.animation as animation
 import threading
 import time
 
+import socket
+socket.setdefaulttimeout(3)
+
 temp="0"
 temp_value=0
 fig=plt.figure()
@@ -16,7 +19,7 @@ def setup_mqtt():
 	client=mqtt.Client("movement_level1")
 	client.on_connect=OnConnect
 	client.on_message=OnMessage
-	client.connect("192.168.4.1",1883,120)
+	client.connect("192.168.4.1",1883,10)
 	return client
 
 def OnConnect(client,userdata,flags,rc):
@@ -35,7 +38,7 @@ def assign_value():
     global temp_value
     global temp
     while True:
-        if float(temp)>0.45:
+        if float(temp)>0.4:
             temp_value=1
         else:
             temp_value=0
@@ -50,7 +53,7 @@ def animate(i):
     plt.ylim('No','Yes')
     print(temp_value)
     plt.bar(['is there a movement'],temp_value)
-
+    
 while True:
     try:
         client = setup_mqtt()
@@ -59,7 +62,7 @@ while True:
         break
     except:
         print("Still waiting for mqtt connection")
-        time.sleep(1)
+    time.sleep(1)
 
 
 assign_ = threading.Thread(target=assign_value,daemon=True)

@@ -6,6 +6,10 @@ import time
 from datetime import datetime
 import threading
 
+import socket
+socket.setdefaulttimeout(3)
+
+
 
 fig=plt.figure()
 plt.ylim(0,6)

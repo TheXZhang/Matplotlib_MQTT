@@ -1,17 +1,22 @@
 import numpy as np
-import paho.mqtt.client as mqtt
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import threading
 import time
+import paho.mqtt.client as mqtt
 
-temp="0"
+import socket
+socket.setdefaulttimeout(3)
+
+
+temp=[]
 fig=plt.figure()
 plt.ylim(0,10)
 plt.xlim([0,19])
 value=[]
 label=[]
 count=-10
+average=[]
 
 
 
@@ -31,23 +36,30 @@ def OnConnect(client,userdata,flags,rc):
 def OnMessage(client,userdata,msg):
     global temp
     if msg.topic =="test/accdata1":
-        temp=msg.payload.decode()
+        temp.append(msg.payload.decode())
+        time.sleep(1)
         
 def assign_value():
     global count
     global value
     global label
+    global temp
+    global average
+    local_temp=temp
     threading.Timer(10.0,assign_value).start()
-    if float(temp)<0.45:
-        value.append(0)
-        count +=10
-        label.append(str(count))
-    else:
-        value.append(float(temp))
-        print(value)
-        count +=10
-        label.append(str(count))
-        print(label)
+    for item in local_temp:
+        if float(item)<0.4:
+            average.append(0)
+        else:
+            average.append(float(item))
+    print(average)
+            
+    value.append(np.average(average))
+    temp.clear()
+    average.clear()
+    count +=10
+    label.append(str(count))
+    print(label)
         
         
 def animate(i):
