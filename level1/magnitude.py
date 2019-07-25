@@ -47,7 +47,7 @@ def animate(i):
     global label
     global temp_value
     plt.clf()
-    plt.ylim(0,1)
+    plt.ylim('No','Yes')
     print(temp_value)
     plt.bar(['is there a movement'],temp_value)
 

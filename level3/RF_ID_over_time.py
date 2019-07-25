@@ -8,72 +8,63 @@ import threading
 
 
 fig=plt.figure()
-plt.ylim(0,6)
+plt.ylim('No','Yes')
 plt.xlim([0,19])
 value=[]
 label=[]
 count=-10
-temp_value=0
-previous=0
-differences=0
+on_bed= 0
+timer=0
+bed="73,65,173,135"
 
 
 def setup_mqtt():
-    client=mqtt.Client("proximity_over_time")
+    client=mqtt.Client("RF_ID_over_time")
     client.on_connect=OnConnect
     client.on_message=OnMessage
     client.connect("192.168.4.1",1883,120)
     return client
 
 def OnConnect(client,userdata,flags,rc):
-    client.subscribe("test/message")
+    client.subscribe("sensors/RFID/raw")
     
         
     
 def OnMessage(client,userdata,msg):
-    global temp_value
-    if msg.topic =="test/message":
-        temp_value=(int(msg.payload.decode()))
-    
+    global on_bed
+    global timer
+    if msg.topic =="sensors/RFID/raw":
+        if msg.payload.decode() == bed:
+            on_bed = 1
+            timer=0
+        else:
+            on_bed = 0
+            timer=0
+            
+            
 def animate(i):
     global value
     global label
-    global differences
     plt.clf()
-    plt.ylim(0,6)
+    plt.ylim('No','Yes')
     plt.xlim([0,19])
-    s="total motion detected in last 3 minutes :" + str(differences)
-    plt.title(s, fontsize=30)
     plt.bar(label,value)
         
 
 def assign_value():
-    global temp_value
+    global on_bed
     global count
-    global previous
-    global differences
     global value
     global label
-
+    
     threading.Timer(10.0,assign_value).start()
-    local_temp=abs(temp_value-previous)
-    if local_temp<20:
-        value.append(temp_value-previous)
-        differences += (temp_value-previous)
-        print(value)
-        count +=10
-        label.append(str(count))
-        print(label)
-        previous=temp_value
-    else:
-        value.append(1)
-        differences +=1
-        print(value)
-        count +=10
-        label.append(str(count))
-        print(label)
-        previous=temp_value
-
+    value.append(on_bed)
+    count +=10
+    label.append(str(count))
+    print(value)
+    print(label)
+    
+    
 while True:
     try:
         client = setup_mqtt()
@@ -95,18 +86,29 @@ def aniChecking():
     while True:
         if count>=190:
             count=0
-            differences=0
             value.clear()
             label.clear()
             value.append(0)
             label.append("0")
             ani= animation.FuncAnimation(fig, animate, frames=18, interval=10000,repeat=False)
-            
+
+def msg_checking():
+    global on_bed
+    global timer
+    while True:
+        timer +=1
+        if timer >=3:
+            on_bed=0
+            timer =0
+        time.sleep(1)
+
 
 aniCheck = threading.Thread(target=aniChecking,daemon=True)
 aniCheck.start()
 
-time.sleep(5)
+msgCheck = threading.Thread(target=msg_checking,daemon=True)
+msgCheck.start()
+
 ani= animation.FuncAnimation(fig, animate, frames=18, interval=10000,repeat=False)
 plt.show()
 
