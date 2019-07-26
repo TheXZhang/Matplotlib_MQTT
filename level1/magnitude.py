@@ -23,22 +23,21 @@ def setup_mqtt():
 	return client
 
 def OnConnect(client,userdata,flags,rc):
-	#client.subscribe("test1/message")
-	client.subscribe("test/accdata1")
+	client.subscribe("sensors/accelerometer/magnitude")
 	
 		
 	
 def OnMessage(client,userdata,msg):
     global temp
     
-    if msg.topic =="test/accdata1":
+    if msg.topic =="sensors/accelerometer/magnitude":
         temp=msg.payload.decode()
         
 def assign_value():
     global temp_value
     global temp
     while True:
-        if float(temp)>0.4:
+        if float(temp)>0.43:
             temp_value=1
         else:
             temp_value=0

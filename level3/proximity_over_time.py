@@ -30,13 +30,13 @@ def setup_mqtt():
     return client
 
 def OnConnect(client,userdata,flags,rc):
-    client.subscribe("test/message")
+    client.subscribe("sensors/proximity/count")
     
         
     
 def OnMessage(client,userdata,msg):
     global temp_value
-    if msg.topic =="test/message":
+    if msg.topic =="sensors/proximity/count":
         temp_value=(int(msg.payload.decode()))
     
 def animate(i):
@@ -47,7 +47,7 @@ def animate(i):
     plt.ylim(0,6)
     plt.xlim([0,19])
     s="total motion detected in last 3 minutes :" + str(differences)
-    plt.title(s, fontsize=30)
+    plt.title(s, fontsize=15)
     plt.bar(label,value)
         
 

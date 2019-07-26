@@ -11,12 +11,12 @@ socket.setdefaulttimeout(3)
 
 temp=[]
 fig=plt.figure()
-plt.ylim(0,10)
+plt.ylim(0,5)
 plt.xlim([0,19])
 value=[]
 label=[]
 count=-10
-average=[]
+last_10s_value=[]
 
 
 
@@ -28,14 +28,14 @@ def setup_mqtt():
 	return client
 
 def OnConnect(client,userdata,flags,rc):
-	#client.subscribe("test1/message")
-	client.subscribe("test/accdata1")
+	client.subscribe("sensors/accelerometer/magnitude")
 	
 		
 	
 def OnMessage(client,userdata,msg):
     global temp
-    if msg.topic =="test/accdata1":
+    if msg.topic =="sensors/accelerometer/magnitude":
+        print(msg.payload.decode())
         temp.append(msg.payload.decode())
         time.sleep(1)
         
@@ -44,19 +44,22 @@ def assign_value():
     global value
     global label
     global temp
-    global average
+    global last_10s_value
     local_temp=temp
     threading.Timer(10.0,assign_value).start()
     for item in local_temp:
-        if float(item)<0.4:
-            average.append(0)
+        if float(item)<0.43:
+            last_10s_value.append(0)
         else:
-            average.append(float(item))
+            last_10s_value.append(float(item))
+    
+    average=np.average(last_10s_value)  
     print(average)
-            
-    value.append(np.average(average))
+    
+    value.append(average)
     temp.clear()
-    average.clear()
+    local_temp.clear()
+    last_10s_value.clear()
     count +=10
     label.append(str(count))
     print(label)
@@ -66,9 +69,9 @@ def animate(i):
     global value
     global label
     plt.clf()
-    plt.ylim(0,10)
+    plt.ylim(0,5)
     plt.xlim([0,19])
-    plt.title("magnitude over 3 minutes period", fontsize=15)
+    plt.title("10 seconds Average magnitude over 3 minutes period", fontsize=15)
     plt.bar(label,value)
     
 
